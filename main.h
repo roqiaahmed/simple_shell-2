@@ -1,6 +1,5 @@
 #ifndef MAIN_H
 #define MAIN_H
-#define BUFFER_SIZE 1024
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,5 +8,8 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+void execute_command(char **args);
+void execute_builtin(char **args):
 
 #endif /* MAIN_H */
