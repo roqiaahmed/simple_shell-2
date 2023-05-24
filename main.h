@@ -8,8 +8,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-void execute_command(char **args);
-void execute_builtin(char **args):
 extern char **environ;
+void execute_command(char **args);
+void execute_builtin(char **args);
 #endif /* MAIN_H */
