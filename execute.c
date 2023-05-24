@@ -44,6 +44,7 @@ printf("Usage: unsetenv VAR\n");
 void execute_command(char **args)
 {
 pid_t pid = fork();
+int exitstatus;
 if (pid == -1)
 {
 perror("fork");
@@ -60,6 +61,6 @@ else
 int status;
 waitpid(pid, &status, 0);
 if (WIFEXITED(status))
-int exitstatus = WEXITSTATUS(status);
+exitstatus = WEXITSTATUS(status);
 }
 }
