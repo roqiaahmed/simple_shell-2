@@ -1,102 +1,93 @@
 #include "main.h"
-
+extern char **environ; // define the environment variable
 
 /**
- * main - Simple shell program
- *
- * Return: Always returns 0
- */
+* read_command - Reads a line of input from the console
+* @line: A pointer to a string buffer where the input line will be stored
+* @len: A pointer to a size_t variable where the length of the input
+*/
+ssize_t read_command(char **line, size_t *len)
+{
+    return getline(line, len, stdin);
+}
+/**
+* is_blank_or_comment - Checks if a line of input is blank or a comment
+* @line: A pointer to a string containingthe input line to check
+* Return: 0
+*/
+int is_blank_or_comment(const char *line)
+{
+    return line[0] == '\n' || line[0] == '#';
+}
+/**
+* parse_command - Parses a line of input into an array of command-line arguments
+* @line: A pointer to a string containing the input line to parse
+* @args: An array of strings where the parsed arguments will be stored
+*/
+void parse_command(char *line, char **args)
+{
+    int i = 0;
+    args[i] = strtok(line, " \t\n");
+    if (args[i] == NULL)
+    {
+        return; // Empty command
+    }
+    while (args[i] != NULL)
+    {
+        i++;
+        args[i] = strtok(NULL, " \t\n");
+    }
+}
+/**
+* is_builtin - Checks if a command is a built-in shell command
+* @command: A string containing the command to check
+*/
+int is_builtin(const char *command)
+{
+    return strcmp(command, "exit") == 0 ||
+           strcmp(command, "env") == 0 ||
+           strcmp(command, "setenv") == 0 ||
+           strcmp(command, "unsetenv") == 0;
+}
+/**
+* main - The main function of the shell program
+*/
+
 int main(void)
 {
-    char *line = NULL, *token;
-    size_t line_size = 0;
-    ssize_t line_len = 0;
-    char *args[BUFFER_SIZE];
-    int status = 0, i;
-    pid_t pid;
-    extern char **environ;
+    char *line = NULL;
+    size_t len = 0;
+    ssize_t nread;
+    char *args[100];
+
+    int interactive = isatty(STDIN_FILENO);
+
     while (1)
     {
-        printf("$ ");
-        line_len = getline(&line, &line_size, stdin);
-        if (line_len == -1)
+        if (interactive)
         {
-            if (feof(stdin))
-            {
-                putchar('\n');
-                exit(status);
-            }
-            else
-            {
-                perror("getline");
-                exit(EXIT_FAILURE);
-            }
+            printf("$ ");
         }
-        token = strtok(line, " \t\n");
-        i = 0;
-        while (token != NULL)
+        nread = read_command(&line, &len);
+        if (nread == -1)
         {
-            args[i] = token;
-            i++;
-            token = strtok(NULL, " \t\n");
+            perror("getline");
+            break;
         }
-        args[i] = NULL;
-        if (args[0] == NULL)
+        if (is_blank_or_comment(line))
+        {
             continue;
-        if (strcmp(args[0], "exit") == 0)
-        {
-            if (args[1] != NULL)
-                status = atoi(args[1]);
-            exit(status);
         }
-        else if (strcmp(args[0], "env") == 0)
+        parse_command(line, args);
+        if (is_builtin(args[0]))
         {
-            char **env = environ;
-            while (*env)
-            {
-                printf("%s\n", *env);
-                env++;
-            }
-            status = 0;
-        }
-        else if (strcmp(args[0], "setenv") == 0)
-        {
-            if (args[1] == NULL || args[2] == NULL)
-                printf("Usage: setenv <variable> <value>\n");
-            else
-                setenv(args[1], args[2], 1);
-            status = 0;
-        }
-        else if (strcmp(args[0], "unsetenv") == 0)
-        {
-            if (args[1] == NULL)
-                printf("Usage: unsetenv <variable>\n");
-            else
-                unsetenv(args[1]);
-            status = 0;
+            execute_builtin(args);
         }
         else
         {
-            pid = fork();
-            if (pid < 0)
-            {
-                perror("fork");
-                exit(EXIT_FAILURE);
-            }
-            else if (pid == 0)
-            {
-                if (execvp(args[0], args) == -1)
-                {
-                    perror(args[0]);
-                    exit(EXIT_FAILURE);
-                }
-            }
-            else
-            {
-                wait(&status);
-            }
+            execute_command(args);
         }
     }
     free(line);
-    return (0);
+    exit(EXIT_SUCCESS);
 }
