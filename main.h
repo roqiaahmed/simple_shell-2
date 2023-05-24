@@ -11,5 +11,5 @@
 
 void execute_command(char **args);
 void execute_builtin(char **args):
-
+extern char **environ;
 #endif /* MAIN_H */
