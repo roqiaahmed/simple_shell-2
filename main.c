@@ -37,9 +37,18 @@ int main(void)
 
         while (token != NULL)
         {
-            args[i] = token;
-            i++;
+            if (token[0] != '\0')
+            {
+                args[i] = token;
+                i++;
+            }
             token = strtok(NULL, " \t\n");
+
+            // Skip over any remaining whitespace
+            while (token != NULL && token[0] == '\0')
+            {
+                token = strtok(NULL, " \t\n");
+            }
         }
 
         args[i] = NULL;
@@ -50,7 +59,7 @@ int main(void)
         if (strcmp(args[0], "exit") == 0)
         {
             if (args[1] != NULL)
-                status = atoi(args[1]);
+               status = atoi(args[1]);
             free(line);
             exit(status);
         }
