@@ -70,7 +70,7 @@ nread = read_command(&line, &len);
 if (nread == -1)
 {
 perror("getline");
-return (0);
+exit(0);
 }
 if (is_blank_or_comment(line))
 {
