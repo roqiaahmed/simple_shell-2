@@ -60,9 +60,6 @@ else
 int status;
 waitpid(pid, &status, 0);
 if (WIFEXITED(status))
-{
 int exitstatus = WEXITSTATUS(status);
-// printf("Program exited with status %d\n", exitstatus);
-}
 }
 }
