@@ -37,6 +37,7 @@ while (args[i] != NULL)
 i++;
 args[i] = strtok(NULL, " \t\n");
 }
+free(args[i]);
 }
 /**
 * is_builtin - Checks if a command is a built-in shell command
@@ -85,7 +86,7 @@ else
 {
 execute_command(args);
 }
-}
 free(line);
-exit(EXIT_SUCCESS);
+}
+return (0);
 }
